@@ -1,0 +1,186 @@
+# ma means merge all
+default: &DEFAULT
+  ## cr_model.py
+  freq_size: 128
+  channels: 3
+  float_type: '32' # '32'
+  is_weighted_cross_entropy_loss: True
+  is_weighted_center_loss: False
+  features_key: 'hid_fc'
+  emos: ['neu', 'ang', 'hap', 'sad'] # 这个配置不要改，对应于某些代码里写死的部分。
+  #emos: ['W','L','E','A','F','T','N']
+  database: 'IEMOCAP'
+  optimizer_type: 'adam'
+
+  train_output_summ_keys: ['h_rnn'] # or ''
+  train_grad_summ_keys: ['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_merge_center_loss_centers: False
+#  is_center_loss_f_norm: True
+  center_loss_f_norm: 'l2_1' # 'l2', 'l2_1', ''
+
+  is_bn: False
+  is_var_cnn_mask: True
+
+  is_l2_reg: False
+  l2_reg_lambda: 0.1
+
+  is_gradient_clip_norm: True
+
+  ## load_data.py
+  data_dir: '/home/zy/dataset/emotions/iemocap_ABC_mels'
+  consider_sent_types: ['impro', 'script']
+  is_merge_hap_exc: True
+  sess: ['Ses01', 'Ses02', 'Ses03', 'Ses04', 'Ses05']
+  vali_test_ses: 0
+  vali_type: '8'
+  test_type: '9'
+  repeat_emos: '' # or [2]
+  is_pre_shuffle_train: True
+  is_clip_long_data: True
+  max_length_of_data: 700
+
+  ## data_set.py
+  batch_size: 64
+  infer_batch_size: 64
+  is_shuffle_vali: False
+  is_shuffle_test: False
+
+  # hpsPreprocessor
+  CUDA_VISIBLE_DEVICES: '1' #0=2 1=0 2=1
+  restore_file: ''
+  id: '' # 最好将id设置成‘’，根据时间生成id
+  id_prefix: '' # 可以在id_str前面加一些自定义的东西
+  is_train: True
+  is_restore: ''
+  out_dir: './cr_model_v2/out_rediv_ma_batch64_nodropout/default'
+  tf_log_fold_prefix: 'tflog_'
+  result_npy_fold: 'result_npy'
+  result_matrix_fold: 'result_matrix'
+  cfg_out_fold: 'cfg'
+  ckpt_fold: 'ckpt'
+  bestloss_ckpt_fold: 'bestloss_ckpt'
+  bestmetric_ckpt_fold: 'bestmetric_ckpt'
+  log_fold: 'log'
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+
+  ## cr_model_run.py
+  # merged and log
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  saver_max_to_keep: 20
+  dist_margin: 0.15
+
+
+  lr_steps: [3000]
+  lrs: [0.0003]
+  cos_loss_lambda_steps: [3000]
+  cos_loss_lambdas: [0.1]
+  dist_loss_lambda_steps: [3000]
+  dist_loss_lambdas: [0.1]
+  center_loss_lambda_steps: [3000]
+  center_loss_lambdas: [0.1]
+  center_loss_alpha_steps: [100, 2900]
+  center_loss_alhpas: [1, 0.5]
+  center_loss_beta_steps: [3000]
+  center_loss_betas: [0.2]
+  center_loss_gamma_steps: [3000]
+  center_loss_gammas: [0.1]
+  feature_norm_alpha_steps: [100, 2900]
+  feature_norm_alphas: [1, 0.5]
+
+  train_op_steps: [3000]
+  train_op_ks: ['ce_tp']
+
+  is_save_emo_result: False
+  max_steps: 20
+  fc_kprob: 1
+  eval_interval: 10
+  train_eval_interval: 5
+  is_eval_test: False
+  persist_interval: 1000
+  gpu_allow_growth: True
+  restart_train_steps: 500
+  best_params_type: 'best_metric' # 'best_loss',
+  best_params_start_steps: 10
+  is_tflog: False
+  is_log_debug: False
+
+  # main_cr_v1.py
+  model_key: 'MelModel11'
+  is_rediv_data: True
+
+  # utils, other file
+  is_log_beside: True
+  stdout_level: 1
+  log_level: 0
+
+ce_center: &CE_CENTER
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/out_mel_rediv_ma_batch64_nodropout/ce_center'
+  center_loss_f_norm: '' # 'l2', 'l2_1', ''
+  train_output_summ_keys: ['h_rnn', 'hid_fc']
+  train_grad_summ_keys: ['ce2hrnn', 'center2hrnn', 'ce2hcnn', 'center2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss', 'ce_center_loss']
+  is_merge_center_loss_centers: True
+  eval_loss_ks: ['ce_loss', 'center_loss', 'ce_center_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_center_loss'
+  features_key: 'hid_fc'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_center_utp']
+  center_loss_lambda_steps: [4000]
+  center_loss_lambdas: [0.3]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0.2]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.1]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+
+ce_center_m11_origin_lambda03_alpha05_beta01_gamma01: &METHOD2
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/center_with_mel'
+  max_steps: 2200
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0]
+  center_loss_alpha_steps: [20, 4000]
+  center_loss_alhpas: [0.7, 0.5]
+  center_loss_beta_steps: [20, 4000]
+  center_loss_betas: [0, 0.1]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.1]
+  feature_norm_alpha_steps: [4000]
+  beta_B_steps: [4000]
+  beta_B: [2]
+  beta_C_steps: [4000]
+  beta_C: [2]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 10
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel'
+  vali_type: '0'
+  test_type: '9' #fix the set of data as the test set
+  fc_kprob: 1.0
+
+
+server:
+  <<: *METHOD2
+
+server_pzd:
+  data_dir: '/home/zy/dataset/emotions/data/iemocap_5emo_logMelW40fft1024d128_rediv'
+

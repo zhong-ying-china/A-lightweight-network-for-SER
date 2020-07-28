@@ -1,0 +1,772 @@
+# impro means only consider impro data
+default: &DEFAULT
+  ## cr_model.py
+  freq_size: 400
+  float_type: '32' # '32'
+  is_weighted_cross_entropy_loss: True
+  is_weighted_center_loss: False
+  features_key: 'hid_fc'
+  emos: ['neu', 'ang', 'hap', 'sad'] # 这个配置不要改，对应于某些代码里写死的部分。
+
+  optimizer_type: 'adam'
+
+  train_output_summ_keys: ['h_rnn'] # or ''
+  train_grad_summ_keys: ['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_merge_center_loss_centers: False
+#  is_center_loss_f_norm: True
+  center_loss_f_norm: 'l2_1' # 'l2', 'l2_1', ''
+
+  is_bn: False
+  is_var_cnn_mask: True
+
+  is_l2_reg: False
+  l2_reg_lambda: 0.1
+
+  is_gradient_clip_norm: False
+
+  ## load_data.py
+  data_dir: '/home/ddy/projects/emotions/data/iemocap_w4s1f400_f4k_npy'
+  consider_sent_types: ['impro']
+  is_merge_hap_exc: False
+  sess: ['Ses01', 'Ses02', 'Ses03', 'Ses04', 'Ses05']
+  vali_test_ses: 4
+  vali_type: 'M'
+  test_type: 'F'
+  repeat_emos: '' # or [2]
+  is_pre_shuffle_train: False
+
+  ## data_set.py
+  batch_size: 32
+  infer_batch_size: 96
+  is_shuffle_vali: False
+  is_shuffle_test: False
+
+  # hpsPreprocessor
+  CUDA_VISIBLE_DEVICES: '3'
+  restore_file: ''
+  id: '' # 最好将id设置成‘’，根据时间生成id
+  id_prefix: '' # 可以在id_str前面加一些自定义的东西
+  is_train: True
+  is_restore: False
+  out_dir: './cr_model_v2/cr2_out/default'
+  tf_log_fold_prefix: 'tflog_'
+  result_npy_fold: 'result_npy'
+  result_matrix_fold: 'result_matrix'
+  cfg_out_fold: 'cfg'
+  ckpt_fold: 'ckpt'
+  bestloss_ckpt_fold: 'bestloss_ckpt'
+  bestmetric_ckpt_fold: 'bestmetric_ckpt'
+  log_fold: 'log'
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+
+  ## cr_model_run.py
+  # merged and log
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  saver_max_to_keep: 20
+  dist_margin: 0.15
+
+
+  lr_steps: [3000]
+  lrs: [0.0003]
+  cos_loss_lambda_steps: [3000]
+  cos_loss_lambdas: [0.1]
+  dist_loss_lambda_steps: [3000]
+  dist_loss_lambdas: [0.1]
+  center_loss_lambda_steps: [3000]
+  center_loss_lambdas: [0.1]
+  center_loss_alpha_steps: [100, 2900]
+  center_loss_alhpas: [1, 0.5]
+  center_loss_beta_steps: [3000]
+  center_loss_betas: [0.2]
+  center_loss_gamma_steps: [3000]
+  center_loss_gammas: [0.1]
+  feature_norm_alpha_steps: [100, 2900]
+  feature_norm_alphas: [1, 0.5]
+
+  train_op_steps: [3000]
+  train_op_ks: ['ce_tp']
+
+  is_save_emo_result: False
+  max_steps: 20
+  fc_kprob: 0.5
+  eval_interval: 10
+  train_eval_interval: 5
+  is_eval_test: True
+  persist_interval: 1000
+  gpu_allow_growth: False
+  restart_train_steps: 500
+  best_params_type: 'best_metric' # 'best_loss',
+  best_params_start_steps: 10
+  is_tflog: False
+
+  # main_cr_v1.py
+  model_key: 'CRModel5'
+
+  # utils, other file
+  is_log_beside: True
+  stdout_level: 1
+  log_level: 0
+
+restore:
+  <<: *DEFAULT
+  out_dir: ./cr_model_v2/cr2_restore_out/ce_m5_2
+  is_train: False
+  is_restore: True
+  restore_file: '/home/ddy/projects/emotions/ser_nn_spectrogram/cr_model_v2/cr2_out_impro/ce_m5/bestmetric_ckpt/09180802_e3vFtM'
+#  restore_file: '/home/ddy/projects/emotions/ser_nn_spectrogram/cr_model_v2/cr2_out_impro/ce_center_m5_lambda030alpha050beta015gamma010/bestmetric_ckpt/09181718_e3vFtM'
+#  restore_file: '/home/ddy/projects/emotions/ser_nn_spectrogram/cr_model_v2/cr2_out_impro/ce_center/bestmetric_ckpt/09200114_e3vFtM'
+  is_save_emo_result: False
+  vali_type: 'F'
+  test_type: 'M'
+  vali_test_ses: 3
+  id_prefix: ''
+  stdout_level: 1
+  train_epochs: [100]
+  lrs: [0.0003]
+  CUDA_VISIBLE_DEVICES: ''
+  features_key: 'hid_fc'
+
+trim_ce_m5: &CE_M5
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/trim_ce_m5'
+  data_dir: '/home/ddy/projects/emotions/data/iemocap_trim_5emo_w4s1f400_f4k_npy'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 2000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'CRModel5'
+  batch_size: 32
+  infer_batch_size: 96
+
+ce_m6_bn: &CE_M6_BN
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_m6_bn'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 2000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: True
+  is_var_cnn_mask: True
+  model_key: 'CRModel6'
+  batch_size: 32
+  infer_batch_size: 64
+
+ce_m7: &CE_M7
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_m7'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 2000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'CRModel7'
+  batch_size: 32
+  infer_batch_size: 64
+
+ce_m8_l2reg_bn: &CE_M8_l2reg_bn
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_m8_l2reg_bn'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'l2_reg_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 3000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: True
+  is_var_cnn_mask: True
+  model_key: 'CRModel8'
+  batch_size: 32
+  infer_batch_size: 64
+  is_l2_reg: True
+
+ce_m9: &CE_M9
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_m9'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 2000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'CRModel9'
+  batch_size: 32
+  infer_batch_size: 64
+
+ce_m10: &CE_M10
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_m10'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 2000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'CRModel10'
+  batch_size: 32
+  infer_batch_size: 64
+
+ce_m11: &CE_M11
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_m11'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 3000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'CRModel11'
+  batch_size: 48
+  infer_batch_size: 64
+  is_eval_test: False
+  is_gradient_clip_norm: True
+
+ce_m12: &CE_M12
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_m12'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 2000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'CRModel12'
+  batch_size: 32
+  infer_batch_size: 64
+  is_eval_test: False
+
+ce_m13: &CE_M13
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_m13'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 3000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'CRModel13'
+  batch_size: 32
+  infer_batch_size: 64
+  is_eval_test: False
+
+ce_m13_bn: &CE_M13_BN
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_m13_bn'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 3000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: True
+  is_var_cnn_mask: True
+  model_key: 'CRModel13'
+  batch_size: 32
+  infer_batch_size: 64
+  is_eval_test: False
+
+ce_m14: &CE_M14
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_m14'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 3000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'CRModel14'
+  batch_size: 32
+  infer_batch_size: 64
+  is_eval_test: False
+
+ce_m15: &CE_M15
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_m15'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 3000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'CRModel15'
+  batch_size: 32
+  infer_batch_size: 64
+  is_eval_test: False
+
+trim_ce_m16: &CE_M16
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/trim_ce_m16'
+  data_dir: '/home/ddy/projects/emotions/data/iemocap_trim_5emo_w4s1f400_f4k_npy'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 3000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'CRModel16'
+  batch_size: 32
+  infer_batch_size: 64
+  is_eval_test: False
+
+ce_m17: &CE_M17
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_m17'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 3000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'CRModel17'
+  batch_size: 32
+  infer_batch_size: 64
+  is_eval_test: False
+
+ce_m19: &CE_M19
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_m19'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 3000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'CRModel19'
+  batch_size: 32
+  infer_batch_size: 64
+  is_eval_test: False
+
+trim_ce_m20: &CE_M20
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/trim_ce_m20'
+  data_dir: '/home/ddy/projects/emotions/data/iemocap_trim_5emo_w4s1f400_f4k_npy'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 3000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'CRModel20'
+  batch_size: 32
+  infer_batch_size: 32
+  is_eval_test: False
+
+ce_m21: &CE_M21
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_m19'
+  train_output_summ_keys: '' #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 3000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'CRModel21'
+  batch_size: 32
+  infer_batch_size: 64
+  is_eval_test: False
+
+ce_center: &CE_CENTER
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_center'
+  center_loss_f_norm: 'l2_1' # 'l2', 'l2_1', ''
+  train_output_summ_keys: ['h_rnn']
+  train_grad_summ_keys: ['ce2hrnn', 'center2hrnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss', 'ce_center_loss']
+  is_merge_center_loss_centers: True
+  eval_loss_ks: ['ce_loss', 'center_loss', 'ce_center_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_center_loss'
+  features_key: 'hid_fc'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_center_utp']
+  center_loss_lambda_steps: [4000]
+  center_loss_lambdas: [0.3]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0.2]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.1]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+
+ce_center2: &CE_CENTER2
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_center2'
+  center_loss_f_norm: 'l2_1' # 'l2', 'l2_1', ''
+  train_output_summ_keys: ['h_rnn']
+  train_grad_summ_keys: ['ce2hrnn', 'center22hrnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss2', 'ce_center_loss2']
+  is_merge_center_loss_centers: True
+  eval_loss_ks: ['ce_loss', 'center_loss2', 'ce_center_loss2']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_center_loss2'
+  features_key: 'hid_fc'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_center2_utp']
+  center_loss_lambda_steps: [4000]
+  center_loss_lambdas: [3]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  CUDA_VISIBLE_DEVICES: '2'
+  best_params_start_steps: 10
+  dist_margin: 0.6
+
+ce_center3: &CE_CENTER3
+  <<: *DEFAULT
+  out_dir: './cr2_out_debug/ce_center3'
+  center_loss_f_norm: '' # 'l2', 'l2_1', ''
+  train_output_summ_keys: ['h_rnn']
+  train_grad_summ_keys: ['ce2hrnn', 'center32hrnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss3', 'ce_center_loss3']
+  is_merge_center_loss_centers: True
+  eval_loss_ks: ['ce_loss', 'center_loss3', 'ce_center_loss3']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_center_loss3'
+  features_key: 'hid_fc'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_center3_tp']
+  center_loss_lambda_steps: [10, 4000]
+  center_loss_lambdas: [0, 2]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.1]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0.2]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.1]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  CUDA_VISIBLE_DEVICES: '2'
+  best_params_start_steps: 10
+  dist_margin: 10.6
+
+ce_center2_m5:
+  <<: *CE_CENTER2
+  out_dir: './cr_model_v2/cr2_out_impro/ce_center2_m5'
+  center_loss_f_norm: 'l2_1' # 'l2', 'l2_1', ''
+  dist_margin: 0.6
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [4000]
+  center_loss_lambdas: [2]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.1]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_center2_utp']
+  model_key: 'CRModel5'
+
+ce_center3_m5:
+  <<: *CE_CENTER3
+  out_dir: './cr_model_v2/cr2_out_impro/ce_center3_m5'
+  center_loss_f_norm: 'l2_1' # 'l2', 'l2_1', ''
+  dist_margin: 0.6
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [10, 4000]
+  center_loss_lambdas: [0, 2]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_center3_tp']
+  model_key: 'CRModel5'
+
+ce_center_m5_lambda030alpha050beta020gamma012:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/cr2_out_impro/ce_center_m5_lambda030alpha050beta020gamma012'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [4000]
+  center_loss_lambdas: [0.3]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0.2]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.12]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 500
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 32
+  model_key: 'CRModel5'
+
+
+ce_center_m5_lambda030alpha050beta015gamma010:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/cr2_out_impro/ce_center_m5_lambda030alpha050beta015gamma010'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [4000]
+  center_loss_lambdas: [0.3]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0.15]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.10]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 500
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 32
+  model_key: 'CRModel5'
+
+trim_ce_center_m5_lambda030alpha050beta015gamma010:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/cr2_out_impro/trim_ce_center_m5_lambda030alpha050beta015gamma010'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [4000]
+  center_loss_lambdas: [0.3]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0.15]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.10]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 500
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 32
+  model_key: 'CRModel5'
+
+ce_center_m5_lambda020alpha050beta015gamma010:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/cr2_out_impro/ce_center_m5_lambda020alpha050beta015gamma010'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [4000]
+  center_loss_lambdas: [0.2]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0.15]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.10]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 500
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 32
+  model_key: 'CRModel5'
+
+ce_center_m5_lambda030alpha050beta010gamma010:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/cr2_out_impro/ce_center_m5_lambda030alpha050beta010gamma010'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [4000]
+  center_loss_lambdas: [0.3]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0.10]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.10]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 500
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 32
+  model_key: 'CRModel5'
+

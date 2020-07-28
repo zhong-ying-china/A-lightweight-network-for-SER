@@ -1,0 +1,1055 @@
+# impro means only consider impro data
+default: &DEFAULT
+  ## cr_model.py
+  freq_size: 128
+  float_type: '32' # '32'
+  is_weighted_cross_entropy_loss: True
+  is_weighted_center_loss: True
+  features_key: 'hid_fc'
+  emos: ['neu', 'ang', 'hap', 'sad'] # 这个配置不要改，对应于某些代码里写死的部分。
+
+  optimizer_type: 'adam'
+
+  train_output_summ_keys: ['h_rnn'] # or ''
+  train_grad_summ_keys: ['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_merge_center_loss_centers: False
+#  is_center_loss_f_norm: True
+  center_loss_f_norm: 'l2_1' # 'l2', 'l2_1', ''
+
+  is_bn: False
+  is_var_cnn_mask: True
+
+  is_l2_reg: False
+  l2_reg_lambda: 0.1
+
+  is_gradient_clip_norm: False
+
+  ## load_data.py
+  data_dir: '/home/ddy/projects/emotions/data/iemocap_5emo_logMelW40fft1024d128_rediv'
+  consider_sent_types: ['impro']
+  is_merge_hap_exc: False
+  sess: ['Ses01', 'Ses02', 'Ses03', 'Ses04', 'Ses05']
+  vali_test_ses: 0
+  vali_type: '8'
+  test_type: '9'
+  repeat_emos: '' # or [2]
+  is_pre_shuffle_train: True
+  is_clip_long_data: True
+  max_length_of_data: 1600
+
+  ## data_set.py
+  batch_size: 64
+  infer_batch_size: 64
+  is_shuffle_vali: False
+  is_shuffle_test: False
+
+  # hpsPreprocessor
+  CUDA_VISIBLE_DEVICES: '3'
+  restore_file: ''
+  id: '' # 最好将id设置成‘’，根据时间生成id
+  id_prefix: '' # 可以在id_str前面加一些自定义的东西
+  is_train: True
+  is_restore: False
+  out_dir: './cr_model_v2/out_rediv_ma_batch64/default'
+  tf_log_fold_prefix: 'tflog_'
+  result_npy_fold: 'result_npy'
+  result_matrix_fold: 'result_matrix'
+  cfg_out_fold: 'cfg'
+  ckpt_fold: 'ckpt'
+  bestloss_ckpt_fold: 'bestloss_ckpt'
+  bestmetric_ckpt_fold: 'bestmetric_ckpt'
+  log_fold: 'log'
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+
+  ## cr_model_run.py
+  # merged and log
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  saver_max_to_keep: 20
+  dist_margin: 0.15
+
+
+  lr_steps: [3000]
+  lrs: [0.0003]
+  cos_loss_lambda_steps: [3000]
+  cos_loss_lambdas: [0.1]
+  dist_loss_lambda_steps: [3000]
+  dist_loss_lambdas: [0.1]
+  center_loss_lambda_steps: [3000]
+  center_loss_lambdas: [0.1]
+  center_loss_alpha_steps: [100, 2900]
+  center_loss_alhpas: [1, 0.5]
+  center_loss_beta_steps: [3000]
+  center_loss_betas: [0.2]
+  center_loss_gamma_steps: [3000]
+  center_loss_gammas: [0.1]
+  feature_norm_alpha_steps: [100, 2900]
+  feature_norm_alphas: [1, 0.5]
+
+  train_op_steps: [3000]
+  train_op_ks: ['ce_tp']
+
+  is_save_emo_result: False
+  max_steps: 20
+  fc_kprob: 0.5
+  eval_interval: 11
+  train_eval_interval: 5
+  is_eval_test: False
+  persist_interval: 1000
+  gpu_allow_growth: False
+  restart_train_steps: 500
+  best_params_type: 'best_metric' # 'best_loss',
+  best_params_start_steps: 10
+  is_tflog: False
+  is_log_debug: False
+
+  # main_cr_v1.py
+  model_key: 'MelModel10'
+  is_rediv_data: True
+
+  # utils, other file
+  is_log_beside: True
+  stdout_level: 1
+  log_level: 0
+
+ce_m10_single: &CE_M10_SINGLE
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_m10_single'
+  train_output_summ_keys: ['h_rnn', 'hid_fc'] #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 3000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'MelModel10'
+  batch_size: 64
+  infer_batch_size: 64
+  fc_kprob: 0.5
+  vali_type: '8'
+  test_type: '9'
+
+ce_m11_single: &CE_M11_SINGLE
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_m11_single'
+  train_output_summ_keys: ['h_rnn', 'hid_fc'] #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 3000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'MelModel11'
+  batch_size: 64
+  infer_batch_size: 64
+  fc_kprob: 0.5
+  vali_type: '8'
+  test_type: '9'
+
+ce_m11_single_nodropout: &CE_M11_SINGLE_NODROPOUT
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_m11_single_nodropout'
+  train_output_summ_keys: ['h_rnn', 'hid_fc'] #['h_rnn', 'h_cnn']
+  train_grad_summ_keys: '' #['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_tflog: False
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+  max_steps: 2000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_tp']
+  is_bn: False
+  is_var_cnn_mask: True
+  model_key: 'MelModel11'
+  batch_size: 64
+  infer_batch_size: 64
+  fc_kprob: 1
+  vali_type: '8'
+  test_type: '9'
+
+ce_center: &CE_CENTER
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center'
+  center_loss_f_norm: '' # 'l2', 'l2_1', ''
+  train_output_summ_keys: ['h_rnn', 'hid_fc']
+  train_grad_summ_keys: ['ce2hrnn', 'center2hrnn', 'ce2hcnn', 'center2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss', 'ce_center_loss']
+  is_merge_center_loss_centers: True
+  eval_loss_ks: ['ce_loss', 'center_loss', 'ce_center_loss']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_center_loss'
+  features_key: 'hid_fc'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_center_utp']
+  center_loss_lambda_steps: [4000]
+  center_loss_lambdas: [0.3]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0.2]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.1]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+
+# single means is not cross validation
+ce_center_m10_origin_lambda03_single:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m10_origin_lambda03_single'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.3]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.10]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel10'
+  vali_type: '8'
+  test_type: '9'
+
+ce_center_m10_origin_lambda01_single:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m10_origin_lambda01_single'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.1]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.10]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel10'
+  vali_type: '8'
+  test_type: '9'
+
+ce_center_m10_origin_lambda003_single:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m10_origin_lambda003_single'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.03]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.10]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel10'
+  vali_type: '8'
+  test_type: '9'
+
+
+ce_center2: &CE_CENTER2
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out_impro/ce_center2'
+  center_loss_f_norm: '' # 'l2', 'l2_1', ''
+  train_output_summ_keys: ['h_rnn', 'hid_fc']
+  train_grad_summ_keys: ['ce2hrnn', 'center22hrnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss2', 'ce_center_loss2']
+  is_merge_center_loss_centers: True
+  eval_loss_ks: ['ce_loss', 'center_loss2', 'ce_center_loss2']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_center_loss2'
+  features_key: 'hid_fc'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_center2_utp']
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 1]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  CUDA_VISIBLE_DEVICES: '2'
+  best_params_start_steps: 20
+  dist_margin: 0.6
+
+ce_center2_m10_lambda1_single: &CE_CENTER2_M10
+  <<: *CE_CENTER2
+  out_dir: './cr_model_v2/cr2_out_impro/ce_center2_m10_lambda1_single'
+  center_loss_f_norm: '' # 'l2', 'l2_1', ''
+  train_output_summ_keys: ['h_rnn', 'hid_fc']
+  train_grad_summ_keys: ['ce2hrnn', 'center22hrnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss2', 'ce_center_loss2']
+  is_merge_center_loss_centers: True
+  eval_loss_ks: ['ce_loss', 'center_loss2', 'ce_center_loss2']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_center_loss2'
+  features_key: 'hid_fc'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_center2_utp']
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 1]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  CUDA_VISIBLE_DEVICES: '2'
+  best_params_start_steps: 20
+  dist_margin: 0.6
+  model_key: 'MelModel10'
+  vali_type: '8'
+  test_type: '9'
+
+ce_center2_m10_lambda01_single:
+  <<: *CE_CENTER2
+  out_dir: './cr_model_v2/cr2_out_impro/ce_center2_m10_lambda01_single'
+  center_loss_f_norm: '' # 'l2', 'l2_1', ''
+  train_output_summ_keys: ['h_rnn', 'hid_fc']
+  train_grad_summ_keys: ['ce2hrnn', 'center22hrnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss2', 'ce_center_loss2']
+  is_merge_center_loss_centers: True
+  eval_loss_ks: ['ce_loss', 'center_loss2', 'ce_center_loss2']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_center_loss2'
+  features_key: 'hid_fc'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_center2_utp']
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.1]
+  center_loss_alpha_steps: [20, 4000]
+  center_loss_alhpas: [1, 0.5]
+  CUDA_VISIBLE_DEVICES: '2'
+  best_params_start_steps: 20
+  dist_margin: 0.6
+  model_key: 'MelModel10'
+  vali_type: '8'
+  test_type: '9'
+
+ce_center2_m10_lambda05_single:
+  <<: *CE_CENTER2
+  out_dir: './cr_model_v2/cr2_out_impro/ce_center2_m10_lambda05_single'
+  center_loss_f_norm: '' # 'l2', 'l2_1', ''
+  train_output_summ_keys: ['h_rnn', 'hid_fc']
+  train_grad_summ_keys: ['ce2hrnn', 'center22hrnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss2', 'ce_center_loss2']
+  is_merge_center_loss_centers: True
+  eval_loss_ks: ['ce_loss', 'center_loss2', 'ce_center_loss2']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_center_loss2'
+  features_key: 'hid_fc'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_center2_utp']
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.5]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  CUDA_VISIBLE_DEVICES: '2'
+  best_params_start_steps: 20
+  dist_margin: 0.6
+  model_key: 'MelModel10'
+  vali_type: '8'
+  test_type: '9'
+
+ce_center7: &ce_center7
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_m10_single/ce_center7'
+  center_loss_f_norm: '' # 'l2', 'l2_1', ''
+  train_output_summ_keys: ['h_rnn', 'hid_fc']
+  train_grad_summ_keys: ['ce2hrnn', 'center72hrnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss7', 'ce_center_loss7']
+  is_merge_center_loss_centers: True
+  eval_loss_ks: ['ce_loss', 'center_loss7', 'ce_center_loss7']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_center_loss7'
+  features_key: 'hid_fc'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_center7_utp']
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 1]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  CUDA_VISIBLE_DEVICES: '2'
+  best_params_start_steps: 20
+  dist_margin: 0.6
+
+
+ce_center7_m10_lambda1_single:
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center7_m10_lambda1_single'
+  center_loss_f_norm: '' # 'l2', 'l2_1', ''
+  train_output_summ_keys: ['h_rnn', 'hid_fc']
+  train_grad_summ_keys: ['ce2hrnn', 'center72hrnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss7', 'ce_center_loss7']
+  is_merge_center_loss_centers: True
+  eval_loss_ks: ['ce_loss', 'center_loss7', 'ce_center_loss7']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_center_loss7'
+  features_key: 'hid_fc'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_center7_utp']
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 1]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  CUDA_VISIBLE_DEVICES: '2'
+  best_params_start_steps: 20
+  dist_margin: 0.6
+  model_key: 'MelModel10'
+  vali_type: '8'
+  test_type: '9'
+
+ce_center7_m10_lambda05_single:
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center7_m10_lambda05_single'
+  center_loss_f_norm: '' # 'l2', 'l2_1', ''
+  train_output_summ_keys: ['h_rnn', 'hid_fc']
+  train_grad_summ_keys: ['ce2hrnn', 'center72hrnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss7', 'ce_center_loss7']
+  is_merge_center_loss_centers: True
+  eval_loss_ks: ['ce_loss', 'center_loss7', 'ce_center_loss7']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_center_loss7'
+  features_key: 'hid_fc'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+  train_op_ks: ['ce_center7_utp']
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.5]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  CUDA_VISIBLE_DEVICES: '2'
+  best_params_start_steps: 20
+  dist_margin: 0.6
+  model_key: 'MelModel10'
+  vali_type: '8'
+  test_type: '9'
+
+ce_center7_m11_lambda02_single:
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center7_m11_lambda02_single'
+  center_loss_f_norm: '' # 'l2', 'l2_1', ''
+  train_output_summ_keys: ['h_rnn', 'hid_fc']
+  train_grad_summ_keys: ['ce2hrnn', 'center72hrnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss7', 'ce_center_loss7']
+  is_merge_center_loss_centers: True
+  eval_loss_ks: ['ce_loss', 'center_loss7', 'ce_center_loss7']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_center_loss7'
+  features_key: 'hid_fc'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+#  train_op_ks: ['ce_tp']
+  train_op_ks: ['ce_center7_utp']
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.2]
+  center_loss_alpha_steps: [20, 4000]
+  center_loss_alhpas: [1, 0.5]
+  CUDA_VISIBLE_DEVICES: '2'
+  best_params_start_steps: 20
+  dist_margin: 0.6
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  is_log_debug: False
+  is_tflog: False
+
+ce_center7_m11_lambda003_single:
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center7_m11_lambda003_single'
+  center_loss_f_norm: '' # 'l2', 'l2_1', ''
+  train_output_summ_keys: ['h_rnn', 'hid_fc']
+  train_grad_summ_keys: ['ce2hrnn', 'center72hrnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss7', 'ce_center_loss7']
+  is_merge_center_loss_centers: True
+  eval_loss_ks: ['ce_loss', 'center_loss7', 'ce_center_loss7']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_center_loss7'
+  features_key: 'hid_fc'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+#  train_op_ks: ['ce_tp']
+  train_op_ks: ['ce_center7_utp']
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.03]
+  center_loss_alpha_steps: [20, 4000]
+  center_loss_alhpas: [1, 0.5]
+  CUDA_VISIBLE_DEVICES: '2'
+  best_params_start_steps: 20
+  dist_margin: 0.6
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  is_log_debug: False
+  is_tflog: False
+
+ce_center7_m11_lambda0003_single:
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center7_m11_lambda0003_single'
+  center_loss_f_norm: '' # 'l2', 'l2_1', ''
+  train_output_summ_keys: ['h_rnn', 'hid_fc']
+  train_grad_summ_keys: ['ce2hrnn', 'center72hrnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss7', 'ce_center_loss7']
+  is_merge_center_loss_centers: True
+  eval_loss_ks: ['ce_loss', 'center_loss7', 'ce_center_loss7']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_center_loss7'
+  features_key: 'hid_fc'
+  max_steps: 4000
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+#  train_op_ks: ['ce_tp']
+  train_op_ks: ['ce_center7_utp']
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.003]
+  center_loss_alpha_steps: [20, 4000]
+  center_loss_alhpas: [1, 0.5]
+  CUDA_VISIBLE_DEVICES: '2'
+  best_params_start_steps: 20
+  dist_margin: 0.6
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  is_log_debug: False
+  is_tflog: False
+
+ce_center7_m11_lambda003_nodropout:
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center7_m11_lambda003_nodropout'
+  center_loss_f_norm: '' # 'l2', 'l2_1', ''
+  train_output_summ_keys: ['h_rnn', 'hid_fc']
+  train_grad_summ_keys: ['ce2hrnn', 'center72hrnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss7', 'ce_center_loss7']
+  is_merge_center_loss_centers: True
+  eval_loss_ks: ['ce_loss', 'center_loss7', 'ce_center_loss7']
+  eval_metric_ks: ['wa', 'ua']
+  ckpt_metric_k: 'ua' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_center_loss7'
+  features_key: 'hid_fc'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  train_op_steps: [4000]
+#  train_op_ks: ['ce_tp']
+  train_op_ks: ['ce_center7_utp']
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.03]
+  center_loss_alpha_steps: [20, 4000]
+  center_loss_alhpas: [1, 0.5]
+  CUDA_VISIBLE_DEVICES: '2'
+  best_params_start_steps: 20
+  dist_margin: 0.6
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  is_log_debug: False
+  is_tflog: False
+  fc_kprob: 1.0
+
+ce_center_m11_origin_lambda003_nodropout:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m11_origin_lambda003_nodropout'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.03]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.10]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  fc_kprob: 1.0
+
+ce_center_m11_origin_lambda001_nodropout:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m11_origin_lambda001_nodropout'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.01]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.01]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  fc_kprob: 1.0
+
+ce_center_m11_origin_lambda0003_nodropout:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m11_origin_lambda0003_nodropout'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.003]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.003]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  fc_kprob: 1.0
+
+ce_center_m11_origin_lambda0001_nodropout:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m11_origin_lambda0001_nodropout'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.001]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.003]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  fc_kprob: 1.0
+
+ce_center_m11_origin_lambda01_nodropout:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m11_origin_lambda01_nodropout'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.1]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.003]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  fc_kprob: 1.0
+
+ce_center_m11_origin_lambda03_nodropout:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m11_origin_lambda03_nodropout'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.3]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.003]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  fc_kprob: 1.0
+
+ce_center_m11_origin_lambda1_nodropout:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m11_origin_lambda1_nodropout'
+  max_steps: 3020
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 1]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.5]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.003]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  fc_kprob: 1.0
+
+ce_center_m11_origin_lambda01_nodropout_alpha01:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m11_origin_lambda01_nodropout_alpha01'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.1]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.1]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.003]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  fc_kprob: 1.0
+
+ce_center_m11_origin_lambda01_nodropout_alpha02:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m11_origin_lambda01_nodropout_alpha02'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.2]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.1]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.003]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  fc_kprob: 1.0
+
+ce_center_m11_origin_lambda01_nodropout_alpha03:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m11_origin_lambda01_nodropout_alpha03'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.3]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.1]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.003]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  fc_kprob: 1.0
+
+ce_center_m11_origin_lambda01_nodropout_alpha04:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m11_origin_lambda01_nodropout_alpha04'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.4]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.1]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.003]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  fc_kprob: 1.0
+
+ce_center_m11_origin_lambda01_nodropout_alpha06:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m11_origin_lambda01_nodropout_alpha06'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.6]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.1]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.003]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  fc_kprob: 1.0
+
+ce_center_m11_origin_lambda01_nodropout_alpha07:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m11_origin_lambda01_nodropout_alpha07'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.7]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.1]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.003]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  fc_kprob: 1.0
+
+ce_center_m11_origin_lambda01_nodropout_alpha08:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m11_origin_lambda01_nodropout_alpha08'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.8]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.1]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.003]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  fc_kprob: 1.0
+
+ce_center_m11_origin_lambda01_nodropout_alpha09:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m11_origin_lambda01_nodropout_alpha09'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 0.9]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.1]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.003]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  fc_kprob: 1.0
+
+ce_center_m11_origin_lambda01_nodropout_alpha10:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/out_mel_rediv_impro_batch64/ce_center_m11_origin_lambda01_nodropout_alpha10'
+  max_steps: 2520
+  lr_steps: [4000]
+  lrs: [0.0003]
+  center_loss_lambda_steps: [20, 4000]
+  center_loss_lambdas: [0, 1]
+  center_loss_alpha_steps: [4000]
+  center_loss_alhpas: [0.1]
+  center_loss_beta_steps: [4000]
+  center_loss_betas: [0]
+  center_loss_gamma_steps: [4000]
+  center_loss_gammas: [0.003]
+  feature_norm_alpha_steps: [4000]
+  feature_norm_alphas: [0.5]
+  best_params_start_steps: 20
+  is_bn: false
+  is_var_cnn_mask: true
+  batch_size: 64
+  infer_batch_size: 64
+  model_key: 'MelModel11'
+  vali_type: '8'
+  test_type: '9'
+  fc_kprob: 1.0

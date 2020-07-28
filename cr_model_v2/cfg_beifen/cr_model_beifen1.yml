@@ -1,0 +1,431 @@
+default: &DEFAULT
+  ## cr_model.py
+  freq_size: 400
+  float_type: '32' # '32'
+
+  is_weighted_cross_entropy_loss: True
+  features_key: 'h_rnn'
+  emos: ['neu', 'ang', 'hap', 'sad'] # 这个配置不要改，对应于某些代码里写死的部分。
+
+#  cos_loss_lambda: 0.2
+  is_center_loss_f_norm: True
+#  center_loss_lambda: 0.2
+#  center_loss_alpha: 0.5
+#  center_loss_beta: 0.02
+#  center_loss_gamma: 0.05
+  optimizer_type: 'adam'
+
+  train_output_summ_keys: ['h_rnn'] # or ''
+  train_grad_summ_keys: ['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_merge_center_loss_centers: False
+
+  is_bn: False
+  is_var_cnn_mask: True
+
+  ## load_data.py
+  data_dir: '/home/ddy/projects/emotions/data/Spectrogram_EN_Var'
+  consider_sent_types: ['impro']
+  is_merge_hap_exe: False
+  sess: ['Ses01', 'Ses02', 'Ses03', 'Ses04', 'Ses05']
+  vali_test_ses: 4
+  vali_type: 'M'
+  test_type: 'F'
+  repeat_emos: '' # or [2]
+  is_pre_shuffle_train: False
+
+  ## data_set.py
+#  reshuffle_each_iteration: False
+  batch_size: 32
+  is_shuffle_vali: False
+  is_shuffle_test: False
+
+  # hpsPreprocessor
+  CUDA_VISIBLE_DEVICES: '3'
+  restore_file: ''
+  id: '' # 最好将id设置成‘’，根据时间生成id
+  id_prefix: '' # 可以在id_str前面加一些自定义的东西
+  is_train: True
+  is_restore: False
+  out_dir: './cr_model_v2/cr2_out/default'
+  tf_log_fold_prefix: 'tflog_'
+  result_npy_fold: 'result_npy'
+  result_matrix_fold: 'result_matrix'
+  cfg_out_fold: 'cfg'
+  ckpt_fold: 'ckpt'
+  bestloss_ckpt_fold: 'bestloss_ckpt'
+  bestmetric_ckpt_fold: 'bestmetric_ckpt'
+  log_fold: 'log'
+  ckpt_metric_k: 'wa' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+
+  ## cr_model_run.py
+  # merged and log
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+  saver_max_to_keep: 20
+  dist_loss_margin: 0.1
+
+  lr_steps: [3000]
+  lrs: [0.0003]
+  cos_loss_lambda_steps: [3000]
+  cos_loss_lambdas: [0.1]
+  dist_loss_lambda_steps: [3000]
+  dist_loss_lambdas: [0.1]
+  center_loss_lambda_steps: [3000]
+  center_loss_lambdas: [0.1]
+  center_loss_alpha_steps: [100, 2900]
+  center_loss_alhpas: [1, 0.5]
+  center_loss_beta_steps: [3000]
+  center_loss_betas: [0.2]
+  center_loss_gamma_steps: [3000]
+  center_loss_gammas: [0.1]
+
+
+
+  train_op_steps: [3000]
+  train_op_ks: ['ce_tp']
+
+
+
+  is_save_emo_result: False
+  max_steps: 20
+  fc_kprob: 0.5
+  eval_interval: 10
+  train_eval_interval: 5
+  is_eval_test: True
+  persist_interval: 1000
+  gpu_allow_growth: True
+  restart_train_steps: 500
+  best_params_type: 'best_metric' # 'best_loss',
+  best_params_start_steps: 10
+
+  # main_cr_v1.py
+  model_key: 'CRModel3'
+
+  # utils, other file
+  is_log_beside: True
+  stdout_level: 1
+  log_level: 0
+
+debug:
+  <<: *DEFAULT
+  max_steps: 2000
+  out_dir: './cr_model_v2/cr2_out/debug'
+#  data_dir: '/home/ddy/projects/emotions/data/Spectrogram_EN_Var_simple'
+  data_dir: '/home/ddy/projects/emotions/data/Spectrogram_EN_Var'
+  model_key: 'CRModel2'
+
+ce: &CE
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out/ce'
+
+  train_output_summ_keys: ['h_rnn', 'h_cnn']
+  train_grad_summ_keys: ['ce2hrnn', 'ce2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss']
+  is_merge_center_loss_centers: False
+
+  eval_loss_ks: ['ce_loss']
+  eval_metric_ks: ['wa', 'ua']
+
+  ckpt_metric_k: 'wa' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+
+  max_steps: 3000
+
+  lr_steps: [3000]
+  lrs: [0.0003]
+
+  train_op_steps: [2000]
+  train_op_ks: ['ce_tp']
+
+ce_center: &CE_CENTER
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out/ce_center'
+
+  is_center_loss_f_norm: False
+  train_output_summ_keys: ['h_rnn']
+  train_grad_summ_keys: ['ce2hrnn', 'center2hrnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'center_loss', 'ce_center_loss']
+  is_merge_center_loss_centers: True
+
+  eval_loss_ks: ['ce_loss', 'center_loss', 'ce_center_loss']
+  eval_metric_ks: ['wa', 'ua']
+
+  ckpt_metric_k: 'wa' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+
+  max_steps: 3000
+
+  lr_steps: [3000]
+  lrs: [0.0003]
+
+  train_op_steps: [500, 2500]
+  train_op_ks: ['ce_tp', 'ce_center_utp']
+
+  center_loss_lambda_steps: [500, 2500]
+  center_loss_lambdas: [0, 0.5]
+  center_loss_alpha_steps: [600, 2900]
+  center_loss_alhpas: [1, 0.5]
+  center_loss_beta_steps: [3000]
+  center_loss_betas: [0.2]
+  center_loss_gamma_steps: [3000]
+  center_loss_gammas: [0.1]
+
+
+ce_cos: &CE_COS
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out/ce_cos'
+
+  train_output_summ_keys: ['h_rnn']
+  train_grad_summ_keys: ['ce2hrnn', 'ce2hcnn', 'cos2hrnn', 'cos2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'cos_loss', 'ce_cos_loss']
+
+  eval_loss_ks: ['ce_loss', 'cos_loss', 'ce_cos_loss']
+  eval_metric_ks: ['wa', 'ua']
+
+  ckpt_metric_k: 'wa' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+
+  max_steps: 3000
+
+  lr_steps: [3000]
+  lrs: [0.0003]
+
+  train_op_steps: [500, 500, 2500]
+  train_op_ks: ['cos_tp','ce_tp', 'ce_cos_tp']
+
+  cos_loss_lambda_steps: [3000]
+  cos_loss_lambdas: [0.1]
+
+ce_dist: &CE_DIST
+  <<: *DEFAULT
+  out_dir: './cr_model_v2/cr2_out/ce_dist'
+  dist_loss_margin: 0.1
+  train_output_summ_keys: ['h_rnn']
+  train_grad_summ_keys: ['ce2hrnn', 'ce2hcnn', 'dist2hrnn', 'dist2hcnn']
+  train_metric_summ_keys: ['e_acc']
+  train_loss_summ_keys: ['ce_loss', 'dist_loss', 'ce_dist_loss']
+
+  eval_loss_ks: ['ce_loss', 'dist_loss', 'ce_dist_loss']
+  eval_metric_ks: ['wa', 'ua']
+
+  ckpt_metric_k: 'wa' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_loss'
+
+  max_steps: 3000
+
+  lr_steps: [3000]
+  lrs: [0.0003]
+
+  train_op_steps: [500, 500, 2500]
+  train_op_ks: ['dist_tp','ce_tp', 'ce_dist_tp']
+
+  dist_loss_lambda_steps: [3000]
+  dist_loss_lambdas: [0.1]
+
+# m1 means CRModel1
+ce_m1:
+  <<: *CE
+  out_dir: './cr_model_v2/cr2_out/ce_m1'
+  model_key: 'CRModel1'
+  max_steps: 3000
+
+ce_m2:
+  <<: *CE
+  out_dir: './cr_model_v2/cr2_out/ce_m2'
+  model_key: 'CRModel2'
+  max_steps: 3000
+
+ce_m3:
+  <<: *CE
+  out_dir: './cr_model_v2/cr2_out/ce_m3'
+  model_key: 'CRModel3'
+  max_steps: 3000
+
+# nmc: not mask cnn
+ce_m1_nmc:
+  <<: *CE
+  out_dir: './cr_model_v2/cr2_out/ce_m1_nmc'
+  model_key: 'CRModel1'
+  max_steps: 3000
+
+  is_var_cnn_mask: False
+
+# bn means batch norm
+ce_m1_bn:
+  <<: *CE
+  out_dir: './cr_model_v2/cr2_out/ce_m1_bn'
+  model_key: 'CRModel1'
+  max_steps: 3000
+  is_bn: True
+  batch_size: 24
+
+ce_m2_bn:
+  <<: *CE
+  out_dir: './cr_model_v2/cr2_out/ce_m2_bn'
+  model_key: 'CRModel2'
+  max_steps: 3000
+  is_bn: True
+
+ce_m3_bn:
+  <<: *CE
+  out_dir: './cr_model_v2/cr2_out/ce_m3_bn'
+  model_key: 'CRModel3'
+  max_steps: 3000
+  is_bn: True
+
+# nw means not weight
+ce_m3_nw:
+  <<: *CE
+  out_dir: './cr_model_v2/cr2_out/ce_m3_nw'
+  model_key: 'CRModel3'
+  max_steps: 3000
+  is_bn: False
+  is_weighted_cross_entropy_loss: False
+
+
+# smallin means small input
+ce_m3_bn_smallin:
+  <<: *CE
+  out_dir: './cr_model_v2/cr2_out/ce_m3_bn_smallin'
+  model_key: 'CRModel3'
+  max_steps: 3000
+  is_bn: True
+  data_dir: '/home/ddy/projects/emotions/data/iemocap_npy_w50s12.5fft800'
+  freq_size: 200
+
+
+ce_center_debug:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/cr2_out/ce_center_debug'
+  model_key: 'CRModel3'
+  vali_test_ses: 4
+  vali_type: 'F'
+  test_type: 'M'
+  CUDA_VISIBLE_DEVICES: '3'
+  is_center_loss_f_norm: True
+
+ce_center_m3:
+  <<: *CE_CENTER
+  out_dir: './cr_model_v2/cr2_out/ce_center_m3'
+  train_op_steps: [300, 2700]
+  train_op_ks: ['ce_tp', 'ce_center_utp']
+  center_loss_lambda_steps: [300, 2700]
+  center_loss_lambdas: [0, 0.5]
+  center_loss_alpha_steps: [400, 2900]
+  center_loss_alhpas: [1, 0.5]
+  center_loss_beta_steps: [3000]
+  center_loss_betas: [0.2]
+  center_loss_gamma_steps: [3000]
+  center_loss_gammas: [0.1]
+  is_center_loss_f_norm: True
+  model_key: 'CRModel3'
+  best_params_start_steps: 300
+
+
+ce_cos_debug:
+  <<: *CE_COS
+  out_dir: './cr_model_v2/cr2_out/ce_cos_debug'
+  max_steps: 3500
+  train_op_steps: [1000, 2500]
+  train_op_ks: ['cos_tp', 'ce_cos_tp']
+  cos_loss_lambda_steps: [600, 200, 200, 200, 2000]
+  cos_loss_lambdas: [1, 0.75, 0.5, 0.25, 0]
+  model_key: 'CRModel3'
+  vali_type: 'F'
+  test_type: 'M'
+  CUDA_VISIBLE_DEVICES: '3'
+  is_bn: True
+  lr_steps: [4000]
+  lrs: [0.0003]
+  eval_loss_ks: ['cos_loss', 'ce_loss', 'ce_cos_loss']
+  eval_metric_ks: ['wa']
+
+  ckpt_metric_k: 'wa' # or 'ua' 'wua'
+  ckpt_loss_k: 'cos_loss'
+  best_params_start_steps: 10
+
+ce_cos_m3_bn:
+  <<: *CE_COS
+  out_dir: './cr_model_v2/cr2_out/ce_cos_m3_bn'
+  max_steps: 3500
+  train_op_steps: [1000, 2500]
+  train_op_ks: ['cos_tp', 'ce_cos_tp']
+  cos_loss_lambda_steps: [600, 200, 200, 200, 2000]
+  cos_loss_lambdas: [1, 0.75, 0.5, 0.25, 0]
+  model_key: 'CRModel3'
+  vali_type: 'F'
+  test_type: 'M'
+  CUDA_VISIBLE_DEVICES: '3'
+  is_bn: True
+  lr_steps: [4000]
+  lrs: [0.0003]
+  eval_loss_ks: ['cos_loss', 'ce_loss', 'ce_cos_loss']
+  eval_metric_ks: ['wa']
+  ckpt_metric_k: 'wa' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_cos_loss'
+  best_params_start_steps: 600
+
+
+ce_cos_m3:
+  <<: *CE_COS
+  out_dir: './cr_model_v2/cr2_out/ce_cos_m3'
+  max_steps: 3500
+  train_op_steps: [1000, 2500]
+  train_op_ks: ['cos_tp', 'ce_cos_tp']
+  cos_loss_lambda_steps: [600, 200, 200, 200, 2000]
+  cos_loss_lambdas: [1, 0.75, 0.5, 0.25, 0]
+  model_key: 'CRModel3'
+  vali_type: 'F'
+  test_type: 'M'
+  CUDA_VISIBLE_DEVICES: '3'
+  is_bn: False
+  lr_steps: [4000]
+  lrs: [0.0003]
+  eval_loss_ks: ['cos_loss', 'ce_loss', 'ce_cos_loss']
+  eval_metric_ks: ['wa']
+  ckpt_metric_k: 'wa' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_cos_loss'
+  best_params_start_steps: 600
+
+ce_cos_m3_hid_fc:
+  <<: *CE_COS
+  out_dir: './cr_model_v2/cr2_out/ce_cos_m3'
+  max_steps: 3500
+  train_op_steps: [1000, 2500]
+  train_op_ks: ['cos_tp', 'ce_cos_tp']
+  cos_loss_lambda_steps: [600, 200, 200, 200, 2000]
+  cos_loss_lambdas: [1, 0.75, 0.5, 0.25, 0]
+  model_key: 'CRModel3'
+  vali_type: 'F'
+  test_type: 'M'
+  CUDA_VISIBLE_DEVICES: '3'
+  is_bn: False
+  lr_steps: [4000]
+  lrs: [0.0003]
+  eval_loss_ks: ['cos_loss', 'ce_loss', 'ce_cos_loss']
+  eval_metric_ks: ['wa']
+  ckpt_metric_k: 'wa' # or 'ua' 'wua'
+  ckpt_loss_k: 'ce_cos_loss'
+  best_params_start_steps: 600
+  features_key: 'hid_fc'
+
+ce_dist_debug:
+  <<: *CE_DIST
+  out_dir: './cr_model_v2/cr2_out/ce_dist_debug'
+  max_steps: 2000
+  train_op_steps: [2000]
+  train_op_ks: ['dist_tp']
+
+pzd_debug:
+  <<: *CE_DIST
+  data_dir: '/home/pengzhendong/ser/data/Spectrogram_EN_Var'
+  out_dir: './cr_model_v2/cr2_out/pzd_debug'
+  max_steps: 2000
+  train_op_steps: [2000]
+  train_op_ks: ['dist_tp']

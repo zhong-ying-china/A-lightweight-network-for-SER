@@ -1,0 +1,23 @@
+python main_crmodel.py --config_name=not_seq_len_weight_shuffle_co_train --gpu=0 --vali_test_ses=4 --vali_type=M --test_type=F
+python main_crmodel.py --config_name=not_seq_len_weight_shuffle_co_train --gpu=3 --vali_test_ses=4 --vali_type=F --test_type=M
+
+python main_crmodel.py --config_name=not_seq_len_weight_shuffle_co_train_restore --gpu=3 --vali_test_ses=0 --vali_type=F --test_type=M --restore_file=/home/ddy/projects/emotions/ser_nn_spectrogram/cr_output2/not_seq_len_weight_shuffle2/bestacc_ckpt/08151232_e0vFtM
+python main_crmodel.py --config_name=not_seq_len_weight_shuffle_co_train_restore --gpu=3 --vali_test_ses=1 --vali_type=F --test_type=M --restore_file=/home/ddy/projects/emotions/ser_nn_spectrogram/cr_output2/not_seq_len_weight_shuffle2/bestacc_ckpt/08151232_e1vFtM
+python main_crmodel.py --config_name=not_seq_len_weight_shuffle_co_train_restore --gpu=3 --vali_test_ses=1 --vali_type=M --test_type=F --restore_file=/home/ddy/projects/emotions/ser_nn_spectrogram/cr_output2/not_seq_len_weight_shuffle2/bestacc_ckpt/08151437_e1vMtF
+python main_crmodel.py --config_name=not_seq_len_weight_shuffle_co_train_restore --gpu=3 --vali_test_ses=0 --vali_type=M --test_type=F --restore_file=/home/ddy/projects/emotions/ser_nn_spectrogram/cr_output2/not_seq_len_weight_shuffle2/bestacc_ckpt/08151440_e0vMtF
+python main_crmodel.py --config_name=not_seq_len_weight_shuffle_co_train_restore --gpu=3 --vali_test_ses=2 --vali_type=M --test_type=F --restore_file=/home/ddy/projects/emotions/ser_nn_spectrogram/cr_output2/not_seq_len_weight_shuffle2/bestacc_ckpt/08151505_e2vMtF
+python main_crmodel.py --config_name=not_seq_len_weight_shuffle_co_train_restore --gpu=3 --vali_test_ses=4 --vali_type=M --test_type=F --restore_file=/home/ddy/projects/emotions/ser_nn_spectrogram/cr_output2/not_seq_len_weight_shuffle2/bestacc_ckpt/08151643_e4vMtF
+python main_crmodel.py --config_name=not_seq_len_weight_shuffle_co_train_restore --gpu=3 --vali_test_ses=4 --vali_type=F --test_type=M --restore_file=/home/ddy/projects/emotions/ser_nn_spectrogram/cr_output2/not_seq_len_weight_shuffle2/bestacc_ckpt/08151645_e4vFtM
+python main_crmodel.py --config_name=not_seq_len_weight_shuffle_co_train_restore --gpu=3 --vali_test_ses=3 --vali_type=F --test_type=M --restore_file=/home/ddy/projects/emotions/ser_nn_spectrogram/cr_output2/not_seq_len_weight_shuffle2/bestacc_ckpt/08151714_e3vFtM
+python main_crmodel.py --config_name=not_seq_len_weight_shuffle_co_train_restore --gpu=3 --vali_test_ses=3 --vali_type=M --test_type=F --restore_file=/home/ddy/projects/emotions/ser_nn_spectrogram/cr_output2/not_seq_len_weight_shuffle2/bestacc_ckpt/08151929_e3vMtF
+
+python main_cr_v2.py --config_name=debug --model_key=CRModel2 --gpu=0
+python main_cr_mel.py --config_name=debug --gpu=2
+
+python main_cr_v2.py --config_file=./cr_model_v2/pzd_debug.yml --config_name=ce_center3 --gpu=2 --vali_test_ses=4 --vali_type=F --test_type=M
+python main_cr_v2.py --config_file=./cr_model_v2/impro.yml --config_name=restore --gpu='3'
+
+python main_cr_mel.py --config_file=./cr_model_v2/mel_impro.yml --config_name=restore --gpu=2
+
+
+
