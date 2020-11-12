@@ -35,6 +35,6 @@ then: train the network by run main_cr_mel_method1.py
 To obtain the best model, we store our model when the accurary increase or the loss decrease
 
 ## Citation
-
+Zhong Y, Hu Y, Huang H, et al. A Lightweight Model Based on Separable Convolution for Speech Emotion Recognition[J]. Proc. Interspeech 2020, 2020: 3331-3335.
 
     
